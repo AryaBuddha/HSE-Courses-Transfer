@@ -2,7 +2,11 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  ignoreBuildErrors: true,
+
+  typescript: {
+    ignoreDevErrors: true,
+    ignoreBuildErrors: true,
+  },
 };
 
 module.exports = nextConfig;
