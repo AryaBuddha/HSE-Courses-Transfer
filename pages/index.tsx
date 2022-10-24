@@ -392,6 +392,7 @@ const Home: NextPage = () => {
             <div className="flex flex-wrap justify-center w-fit">
               {DEFAULTS.grades.map((grade) => (
                 <div
+                  key={grade}
                   className="form-check form-check-inline border p-3 rounded-xl hover:border-blue-600 hover:cursor-pointer"
                   onClick={() => handleGradeEdit(grade)}
                 >
@@ -415,6 +416,7 @@ const Home: NextPage = () => {
             <div className="flex flex-wrap justify-center w-fit">
               {DEFAULTS.tags.map((tag) => (
                 <div
+                  key={tag}
                   className="form-check form-check-inline border p-3 rounded-xl hover:border-blue-600 hover:cursor-pointer"
                   onClick={() => handleTagEdit(tag)}
                 >
@@ -439,6 +441,7 @@ const Home: NextPage = () => {
           <div className="flex flex-wrap justify-center w-fit">
             {DEFAULTS.subjects.map((subject) => (
               <div
+                key={subject}
                 className="form-check form-check-inline border p-3 rounded-xl hover:border-blue-600 hover:cursor-pointer"
                 onClick={() => handleSubjectEdit(subject)}
               >
