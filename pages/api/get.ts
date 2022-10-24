@@ -13,6 +13,8 @@ export default async function handler(
   if (num) {
     //res.status(200).json(data[num]);
     res.status(200).json(data[num]);
+    return;
   }
   res.status(200).json(data);
+  return;
 }
