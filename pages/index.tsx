@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { NextPage } from "next";
 
-import InputBox from "../components/InputBox";
-
 const Home: NextPage = () => {
   const [DEFAULTS, setDEFAULTS] = useState({
     grades: ["Freshman", "Sophomore", "Junior", "Senior"],
@@ -28,12 +26,11 @@ const Home: NextPage = () => {
   const [course, setCourse] = useState();
   const [courseNumber, setCourseNumber] = useState(0);
   const [maxNum, setMaxNum] = useState(0);
-  const [manualCourseNum, setmanualCourseNum] = useState("1");
+  const [manualCourseNum, setManualCourseNum] = useState("1");
   const [errors, setErrors] = useState<String>();
   const [success, setSuccess] = useState<String>();
   const [loading, setLoading] = useState(false);
-  const [authed, setAuthed] = useState<Boolean>();
-  const [password, setPassword] = useState<String>();
+  const [authed, setAuthed] = useState<Boolean>(false);
 
   useEffect(() => {
     setErrors("");
@@ -41,7 +38,6 @@ const Home: NextPage = () => {
 
     fetch("/api/defaults").then((res) => {
       res.json().then((data) => {
-        console.log(data.credits);
         setDEFAULTS((prev) => ({
           ...prev,
           subjects: data.credits,
@@ -53,7 +49,6 @@ const Home: NextPage = () => {
     fetch("/api/get?num=" + courseNumber).then((res) => {
       res.json().then((data) => {
         setCourse(data);
-        console.log(data);
       });
     });
 
@@ -117,12 +112,12 @@ const Home: NextPage = () => {
   ) => {
     if (e.target.id == "prev") {
       setCourseNumber(courseNumber - 1);
-      setmanualCourseNum((manualCourseNum) =>
+      setManualCourseNum((manualCourseNum) =>
         (parseInt(manualCourseNum) - 1).toString()
       );
     } else {
       setCourseNumber(courseNumber + 1);
-      setmanualCourseNum((manualCourseNum) =>
+      setManualCourseNum((manualCourseNum) =>
         (parseInt(manualCourseNum) + 1).toString()
       );
     }
@@ -132,16 +127,16 @@ const Home: NextPage = () => {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     if (e.target.value == "") {
-      setmanualCourseNum("");
+      setManualCourseNum("");
       setCourseNumber(0);
     } else if (parseInt(e.target.value) > maxNum) {
-      setmanualCourseNum(maxNum.toString());
+      setManualCourseNum(maxNum.toString());
       setCourseNumber(maxNum);
     } else if (parseInt(e.target.value) < 0) {
-      setmanualCourseNum("1");
+      setManualCourseNum("1");
       setCourseNumber(0);
     } else {
-      setmanualCourseNum(e.target.value);
+      setManualCourseNum(e.target.value);
       setCourseNumber(parseInt(e.target.value) - 1);
     }
   };
@@ -171,7 +166,7 @@ const Home: NextPage = () => {
 
       if (!course._id) {
         setCourseNumber(maxNum);
-        setmanualCourseNum((manualCourseNum) =>
+        setManualCourseNum((manualCourseNum) =>
           (parseInt(manualCourseNum) + 1).toString()
         );
       }
@@ -190,13 +185,25 @@ const Home: NextPage = () => {
       if (res.status == 200) {
         setSuccess("Course Deleted!");
         setCourseNumber(0);
-        setmanualCourseNum("1");
+        setManualCourseNum("1");
       } else if (res.status == 400) {
         setErrors(data.errors[0]);
       }
     }
 
     setLoading(false);
+  };
+
+  const handleFilterChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value.length == 4) {
+      fetch("/api/search?num=" + e.target.value).then((res) => {
+        res.json().then((data) => {
+          setCourseNumber(data);
+          setManualCourseNum(data + 1);
+          e.target.value = "";
+        });
+      });
+    }
   };
 
   const handleAuth = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -228,31 +235,44 @@ const Home: NextPage = () => {
   }
   return (
     <div className="p-11">
-      <div className="flex justify-center items-center">
-        <button
-          disabled={courseNumber == 0}
-          id="prev"
-          onClick={handleCourseNumberChange}
-          className="px-3 py-2 border rounded-lg bg-gray-300 hover:bg-slate-200 disabled:opacity-50 disabled:bg-black"
-        >
-          -
-        </button>
-        <div className="text-2xl px-3 flex items-center">
-          <input
-            className="w-12 border border-gray-500"
-            value={manualCourseNum}
-            onChange={handleManualCourseNumberChange}
-          />
-          <h1>/ {maxNum}</h1>
+      <div className="flex justify-between mb-3">
+        <div className="flex justify-center items-center">
+          <button
+            disabled={courseNumber == 0}
+            id="prev"
+            onClick={handleCourseNumberChange}
+            className="px-3 py-2 border rounded-lg bg-gray-300 hover:bg-slate-200 disabled:opacity-50 disabled:bg-black"
+          >
+            -
+          </button>
+          <div className="text-2xl px-3 flex items-center">
+            <input
+              className="w-12 border border-gray-500"
+              value={manualCourseNum}
+              onChange={handleManualCourseNumberChange}
+            />
+            <h1>/ {maxNum}</h1>
+          </div>
+          <button
+            disabled={courseNumber == maxNum}
+            id="next"
+            onClick={handleCourseNumberChange}
+            className="px-3 py-2 border rounded-lg bg-gray-300 hover:bg-slate-200"
+          >
+            +
+          </button>
         </div>
-        <button
-          disabled={courseNumber == maxNum}
-          id="next"
-          onClick={handleCourseNumberChange}
-          className="px-3 py-2 border rounded-lg bg-gray-300 hover:bg-slate-200"
-        >
-          +
-        </button>
+        <div>
+          <label className="block mb-2 text-sm font-medium text-gray-900 ">
+            Course ID Filter
+          </label>
+          <input
+            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-32  p-2.5"
+            id="course_filter"
+            required
+            onChange={handleFilterChange}
+          />
+        </div>
       </div>
 
       <form>
@@ -384,7 +404,7 @@ const Home: NextPage = () => {
           </div>
         </div>
 
-        <div className="flex">
+        <div className="flex mb-3">
           <div>
             <label className="block mb-2 text-sm font-medium text-gray-900 ">
               Grades

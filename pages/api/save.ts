@@ -59,7 +59,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       .collection("Courses")
       .updateOne({ _id: new ObjectId(_id) }, { $set: req.body });
     res.status(200).json(result);
-    console.log(result);
+
     return;
   } else {
     const result = await db.collection("Courses").insertOne(req.body);

@@ -7,17 +7,17 @@ export default async function handler(
 ) {
   const client = await clientPromise;
   const db = client.db("CourseData");
+  const data = await db.collection("Courses").find().toArray();
 
-  const data = await db.collection("CreditsTags").find().toArray();
-  const defaults = {
-    credits: [],
-    tags: [],
-  };
-  data.map(({ list, type }) => {
-    list.map(({ name }) => {
-      defaults[type].push(name);
-    });
-  });
+  const { num } = req.query;
 
-  res.status(200).json(defaults);
+  let index = 0;
+  try {
+    index = data.findIndex((course) => course.course_id === num);
+  } catch {
+    index = 0;
+  }
+
+  res.status(200).json(index);
+  return;
 }
