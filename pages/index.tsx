@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import type { NextPage } from "next";
 
 const Home: NextPage = () => {
@@ -31,6 +31,9 @@ const Home: NextPage = () => {
   const [success, setSuccess] = useState<String>();
   const [loading, setLoading] = useState(false);
   const [authed, setAuthed] = useState<Boolean>(false);
+
+  const numFilter = useRef(null);
+  const textFilter = useRef(null);
 
   useEffect(() => {
     setErrors("");
@@ -194,13 +197,29 @@ const Home: NextPage = () => {
     setLoading(false);
   };
 
-  const handleFilterChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value.length == 4) {
-      fetch("/api/search?num=" + e.target.value).then((res) => {
+  const handleNumFilterEnter = async (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (e.key == "Enter") {
+      fetch("/api/search?num=" + e.currentTarget.value).then((res) => {
         res.json().then((data) => {
           setCourseNumber(data);
           setManualCourseNum(data + 1);
-          e.target.value = "";
+          numFilter.current.value = "";
+        });
+      });
+    }
+  };
+
+  const handleTextFilterEnter = async (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (e.key == "Enter") {
+      fetch("/api/search?text=" + e.currentTarget.value).then((res) => {
+        res.json().then((data) => {
+          setCourseNumber(data);
+          setManualCourseNum(data + 1);
+          textFilter.current.value = "";
         });
       });
     }
@@ -262,16 +281,31 @@ const Home: NextPage = () => {
             +
           </button>
         </div>
-        <div>
-          <label className="block mb-2 text-sm font-medium text-gray-900 ">
-            Course ID Filter
-          </label>
-          <input
-            className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-32  p-2.5"
-            id="course_filter"
-            required
-            onChange={handleFilterChange}
-          />
+        <div className="flex gap-x-3">
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-900 ">
+              Course Name Filter
+            </label>
+            <input
+              className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-56  p-2.5"
+              id="course_filter"
+              ref={textFilter}
+              required
+              onKeyDown={handleTextFilterEnter}
+            />
+          </div>
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-900 ">
+              Course ID Filter
+            </label>
+            <input
+              className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-32  p-2.5"
+              id="course_filter"
+              ref={numFilter}
+              required
+              onKeyDown={handleNumFilterEnter}
+            />
+          </div>
         </div>
       </div>
 
